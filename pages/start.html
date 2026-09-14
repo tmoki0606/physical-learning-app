@@ -14,46 +14,26 @@
 </head>
 
 <body>
-    <h1>デジタルLapテスト</h1>
+    <h1>○○（作品名を入れる）</h1>
 
     <!-- 自分に合ったテストを探すフォーム -->
-    <div class="subject-form">
-
-        <!-- 所属学校 -->
-        <label for="schoolSelect">学校：</label>
-        <select id="schoolSelect">
-            <option value="elementary">小学生</option>
-            <option value="junior-high">中学生</option>
-            <option value="high">高校生</option>
+    <div class="revel-form">
+        <!-- レベル条件を絞る -->
+        <label for="revelSelect">レベル：</label>
+        <!-- 初期値は1 -->
+        <select id="revelSelect">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
         </select>
-
-        <!-- 学年 -->
-        <label for="gradeSelect">学年：</label>
-        <!-- 初期値は小学生 -->
-        <select id="gradeSelect">
-            <option value="1">1年</option>
-            <option value="2">2年</option>
-            <option value="3">3年</option>
-            <option value="4">4年</option>
-            <option value="5">5年</option>
-            <option value="6">6年</option>
-        </select>
-
-        <!-- 科目 -->
-        <label for="subjectSelect">科目：</label>
-        <!-- 初期値は小・中学生 -->
-        <select id="subjectSelect">
-            <option value="japanese">国語</option>
-            <option value="math">算数</option>
-            <option value="science">理科</option>
-            <option value="social">社会</option>
-            <option value="english">英語</option>
-        </select>
-
-        <button id="addRoutineBtn">決定</button>
+        
+        <button id="addRoutineBtn">スタート</button>
     </div>
 
-    <!-- start.html用JavaScript -->
-    <script src="assets/js/start.js"></script>
+    <script src="start.js"></script>
 </body>
+</html>
 </html>
