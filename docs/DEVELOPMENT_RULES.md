@@ -2,7 +2,7 @@
 
 このプロジェクトを複数人で編集するための基本ルールをまとめる。
 
-## 1. 推奨ファイル構成
+## 1. 推奨ファイル構成（例）
 
 ```text
 repository/
@@ -77,7 +77,7 @@ repository/
 GitHub Pagesでは、このプロジェクトは通常、
 
 ```text
-https://USERNAME.github.io/REPOSITORY_NAME/
+https://tmoki0606.github.io/REPOSITORY_NAME/
 ```
 
 のようなURLで公開される。
@@ -91,7 +91,7 @@ https://USERNAME.github.io/REPOSITORY_NAME/
 この書き方では、
 
 ```text
-https://USERNAME.github.io/assets/css/common.css
+https://tmoki0606.github.io/assets/css/common.css
 ```
 
 を参照してしまい、リポジトリ名の部分が抜ける。
@@ -102,7 +102,7 @@ https://USERNAME.github.io/assets/css/common.css
 
 ```html
 <head>
-    <base href="/REPOSITORY_NAME/">
+    <base href="/physical-learning-app/">
 </head>
 ```
 
