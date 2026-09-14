@@ -9,20 +9,20 @@ repository/
 ├─ index.html
 │
 ├─ pages/
-│  ├─ select.html
+│  ├─ start.html
 │  ├─ puzzle.html
 │  └─ result.html
 │
 ├─ assets/
 │  ├─ css/
 │  │  ├─ common.css
-│  │  ├─ select.css
+│  │  ├─ start.css
 │  │  ├─ puzzle.css
 │  │  └─ result.css
 │  │
 │  ├─ js/
 │  │  ├─ common.js
-│  │  ├─ select.js
+│  │  ├─ start.js
 │  │  ├─ puzzle.js
 │  │  └─ result.js
 │  │
