@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- GitHub Pages上の基準パス -->
+    <base href="/physical-learning-app/">
+
     <title>スタート画面</title>
-    <link rel="stylesheet" href="start.css">
+
+    <!-- start.html用CSS -->
+    <link rel="stylesheet" href="assets/css/start.css">
 </head>
+
 <body>
     <h1>デジタルLapテスト</h1>
 
     <!-- 自分に合ったテストを探すフォーム -->
     <div class="subject-form">
+
         <!-- 所属学校 -->
         <label for="schoolSelect">学校：</label>
         <select id="schoolSelect">
@@ -19,7 +27,7 @@
             <option value="high">高校生</option>
         </select>
 
-        <!-- 学年にて条件を絞る -->
+        <!-- 学年 -->
         <label for="gradeSelect">学年：</label>
         <!-- 初期値は小学生 -->
         <select id="gradeSelect">
@@ -31,9 +39,9 @@
             <option value="6">6年</option>
         </select>
 
-        <!-- 科目にて各学年のものに仕上げる。 -->
+        <!-- 科目 -->
         <label for="subjectSelect">科目：</label>
-         <!-- 初期値は小・中学生 -->
+        <!-- 初期値は小・中学生 -->
         <select id="subjectSelect">
             <option value="japanese">国語</option>
             <option value="math">算数</option>
@@ -41,10 +49,11 @@
             <option value="social">社会</option>
             <option value="english">英語</option>
         </select>
-        
+
         <button id="addRoutineBtn">決定</button>
     </div>
 
-    <script src="start.js"></script>
+    <!-- start.html用JavaScript -->
+    <script src="assets/js/start.js"></script>
 </body>
 </html>
