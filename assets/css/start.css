@@ -1,6 +1,3 @@
-/* ==========================================================================
-   全体の基本スタイル
-   ========================================================================== */
 body {
     font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
     background-color: #f4f7f9; /* 薄いグレーの背景で落ち着いた雰囲気に */
@@ -19,61 +16,10 @@ h1 {
     text-align: center;
 }
 
-/* ==========================================================================
-   フォーム全体のカードデザイン
-   ========================================================================== */
-.subject-form {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px; /* 角を少し丸く */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 軽い影をつけて立体的に */
-    width: 100%;
-    max-width: 400px; /* 横幅が広がりすぎないように制限 */
-    box-sizing: border-box;
-}
-
-/* ==========================================================================
-   ラベルとセレクトボックスの配置
-   ========================================================================== */
-.subject-form label {
-    display: block;
-    font-size: 14px;
-    font-weight: bold;
-    color: #4a5568;
-    margin-bottom: 6px;
-    margin-top: 16px;
-}
-
-/* 最初のラベルだけ上の余白を詰める */
-.subject-form label:first-of-type {
-    margin-top: 0;
-}
-
-/* セレクトボックスの見た目をスタイリッシュに */
-.subject-form select {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 16px; /* スマホでズームされないちょうどいい大きさ */
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    background-color: #ffffff;
-    color: #333333;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    box-sizing: border-box;
-}
-
-/* セレクトボックスが選択された（フォーカスした）とき */
-.subject-form select:focus {
-    border-color: #3182ce; /* 青色の枠線に変わる */
-    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
-}
-
-/* ==========================================================================
-   決定ボタンのスタイル
-   ========================================================================== */
+/* 決定ボタンのスタイル = */
 #addRoutineBtn {
-    width: 100%;
+    width: 200px;
+    height: 50px;
     background-color: #3182ce; /* スッキリした青色 */
     color: #ffffff;
     border: none;
