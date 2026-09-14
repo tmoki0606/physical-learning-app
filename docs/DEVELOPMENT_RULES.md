@@ -119,6 +119,8 @@ https://tmoki0606.github.io/assets/css/common.css
 <a href="pages/select.html">スタート</a>
 ```
 
+<img width="497" height="236" alt="image" src="https://github.com/user-attachments/assets/2ca39ec4-bccf-43f3-b387-88848b244eb3" />
+
 ### 注意
 
 `REPOSITORY_NAME` は実際のGitHubリポジトリ名に置き換えること。
