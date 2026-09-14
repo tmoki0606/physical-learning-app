@@ -2,22 +2,22 @@
 
 物理デバイスと連携して学習を行うWebアプリケーションです。
 
-## プロジェクト構成
+## プロジェクト構成(例)
 
 ```text
 physical-learning-app/
 ├─ assets/
 │  ├─ css/
-│  │  └─ select.css
+│  │  └─ start.css
 │  └─ js/
-│     └─ select.js
+│     └─ start.js
 ├─ docs/
 │  ├─ DEVELOPMENT_RULES.md
 │  └─ COMMUNICATION_SPEC.md
 ├─ firmware/
 │  └─ （マイコン用プログラム）
 ├─ pages/
-│  └─ select.html
+│  └─ start.html
 ├─ README.md
 └─ index.html
 ```
