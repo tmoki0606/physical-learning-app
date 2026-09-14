@@ -1,0 +1,94 @@
+body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    background-color: #f4f7f9; /* 薄いグレーの背景で落ち着いた雰囲気に */
+    color: #333333;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 画面の真ん中に寄せる */
+}
+
+h1 {
+    font-size: 28px;
+    color: #1a365d; /* 濃い紺色でスマートな印象に */
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   フォーム全体のカードデザイン
+   ========================================================================== */
+.revel-form {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px; /* 角を少し丸く */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 軽い影をつけて立体的に */
+    width: 100%;
+    max-width: 400px; /* 横幅が広がりすぎないように制限 */
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   ラベルとセレクトボックスの配置
+   ========================================================================== */
+.revel-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #4a5568;
+    margin-bottom: 6px;
+    margin-top: 16px;
+}
+
+/* 最初のラベルだけ上の余白を詰める */
+.revel-form label:first-of-type {
+    margin-top: 0;
+}
+
+/* セレクトボックスの見た目をスタイリッシュに */
+.revel-form select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px; /* スマホでズームされないちょうどいい大きさ */
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #333333;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+/* セレクトボックスが選択された（フォーカスした）とき */
+.revel-form select:focus {
+    border-color: #3182ce; /* 青色の枠線に変わる */
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+}
+
+/* ==========================================================================
+   決定ボタンのスタイル
+   ========================================================================== */
+#addRoutineBtn {
+    width: 100%;
+    background-color: #3182ce; /* スッキリした青色 */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+/* ボタンにマウスを乗せたとき */
+#addRoutineBtn:hover {
+    background-color: #2b6cb0; /* 少し濃い青色に */
+}
+
+/* ボタンをクリックした瞬間 */
+#addRoutineBtn:active {
+    transform: scale(0.98); /* わずかに凹むアニメーション */
+}
