@@ -59,5 +59,5 @@ physical-learning-app/
 公開URLは以下の形式を想定しています。
 
 ```text
-https://<USERNAME>.github.io/physical-learning-app/
+https://tmoki0606.github.io/physical-learning-app/
 ```
