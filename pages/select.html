@@ -3,27 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="/physical-learning-app/">
-  
-    <title>パズル選択</title>
-    <link rel="stylesheet" href="assets/css/select.css">
-    
+    <title>単元選択</title>
+    <link rel="stylesheet" href="select.css">
 </head>
 <body>
 
+    <!-- デモ用テストバー (JavaScriptのsetParams関数を呼び出します) -->
+    <div class="demo-bar">
+        <label>⚙️ URLパラメータ動作テスト（デモ切替）：</label>
+        <div class="demo-buttons">
+            <button class="demo-btn" onclick="setParams('revel1')">初級</button>
+            <button class="demo-btn" onclick="setParams('revel2')">中級</button>
+            <button class="demo-btn" onclick="setParams('revel3')">上級</button>
+        </div>
+    </div>
+
     <div class="container">
+        <!-- JSでページタイトルが挿入されます -->
         <h1 id="page-title">読み込み中...</h1>
+        
+        <!-- JSで選択情報テキストが挿入されます -->
         <div id="selection-info" class="info"></div>
         
         <h2>単元一覧</h2>
-        <div id="unit-container">
-            <!-- JSで動的に単元がここに挿入されます -->
-        </div>
+        
+        <!-- JSで単元カードが挿入されます -->
+        <div id="unit-container"></div>
+
+        <!-- JSでバッジ表示などに使われる要素 -->
+        <div id="selected-badge" class="selected-badge"></div>
 
         <a href="index.html" class="back-link">← スタート画面に戻る</a>
     </div>
 
-    <script src="assets/js/select.js"></script>
+    <!-- JSファイルの読み込み（DOM構築後に実行） -->
+    <script src="select.js" defer></script>
 
 </body>
 </html>
