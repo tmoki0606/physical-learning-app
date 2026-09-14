@@ -5,19 +5,33 @@ physical-learning-app
 プロジェクト構成
 
 physical-learning-app/
+
 ├─ assets/
+
 │  ├─ css/
+
 │  │  └─ select.css
+
 │  └─ js/
+
 │     └─ select.js
+
 ├─ docs/
+
 │  ├─ DEVELOPMENT_RULES.md
+
 │  └─ COMMUNICATION_SPEC.md
+
 ├─ firmware/
+
 │  └─ （マイコン用プログラム）
+
 ├─ pages/
+
 │  └─ select.html
+
 ├─ README.md
+
 └─ index.html
 
 各ディレクトリ・ファイルの役割
