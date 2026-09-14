@@ -119,7 +119,22 @@ https://tmoki0606.github.io/assets/css/common.css
 <a href="pages/select.html">スタート</a>
 ```
 
-<img width="497" height="236" alt="image" src="https://github.com/user-attachments/assets/2ca39ec4-bccf-43f3-b387-88848b244eb3" />
+例
+```html
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- GitHub Pages上の基準パス -->
+    <base href="/physical-learning-app/">
+
+    <title>スタート画面</title>
+
+    <!-- start.html用CSS -->
+    <link rel="stylesheet" href="assets/css/start.css">
+</head>
+```
+
 
 ### 注意
 
