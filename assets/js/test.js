@@ -30,11 +30,8 @@ let receiveBuffer = "";
 // 角度管理用の変数
 // ==================================================
 
-// マイコンから最後に受信した角度
-let lastSensorAngle = null;
-
-// Web画面上で使用する連続した角度
-let visualAngle = 0;
+// マイコンから受信した累積角度
+let cumulativeAngle = 0;
 
 
 // ==================================================
@@ -51,7 +48,7 @@ connectButton.addEventListener("click", async () => {
     }
 
     try {
-        // ユーザーに接続するシリアルポートを選んでもらう
+        // 接続するシリアルポートを選択
         port = await navigator.serial.requestPort();
 
         // Arduino側と同じ通信速度で開く
@@ -62,7 +59,7 @@ connectButton.addEventListener("click", async () => {
         statusText.textContent = "接続済み";
         connectButton.disabled = true;
 
-        // シリアルデータの読み取りを開始
+        // シリアルデータの読み取り開始
         readSerialData();
 
     } catch (error) {
@@ -92,24 +89,19 @@ async function readSerialData() {
                 break;
             }
 
-            // バイトデータを文字列へ変換
+            // 受信したデータを文字列へ変換
             receiveBuffer += decoder.decode(
                 value,
                 { stream: true }
             );
 
-            /*
-             * シリアルデータは、
-             * 1行単位で届くとは限らない。
-             *
-             * そのため改行で分割し、
-             * 完成した行だけを処理する。
-             */
+            // 改行ごとにデータを分割
             const lines = receiveBuffer.split("\n");
 
-            // 最後の未完成部分を次回まで残す
+            // 最後の未完成データを次回まで保存
             receiveBuffer = lines.pop();
 
+            // 完成した行を順番に処理
             for (const line of lines) {
                 processSerialLine(line.trim());
             }
@@ -137,8 +129,7 @@ function processSerialLine(line) {
 
     // RESET命令を受信した場合
     if (line.startsWith("RESET")) {
-        lastSensorAngle = 0;
-        visualAngle = 0;
+        cumulativeAngle = 0;
 
         updatePuzzleRotation();
 
@@ -150,51 +141,19 @@ function processSerialLine(line) {
         return;
     }
 
-    // 「ANGLE,25.3」の25.3部分を取り出す
+    // 「ANGLE,370.5」の370.5部分を取得
     const parts = line.split(",");
     const receivedAngle = Number(parts[1]);
 
-    // 数値として読み取れなかった場合は無視
+    // 正しい数値でなければ無視
     if (!Number.isFinite(receivedAngle)) {
         return;
     }
 
-    // 最初の角度を受信した場合
-    if (lastSensorAngle === null) {
-        lastSensorAngle = receivedAngle;
-        visualAngle = receivedAngle;
+    // マイコンから届いた累積角度を保存
+    cumulativeAngle = receivedAngle;
 
-        updatePuzzleRotation();
-
-        return;
-    }
-
-    // 前回受信した角度との差
-    let difference =
-        receivedAngle - lastSensorAngle;
-
-    /*
-     * 360度をまたいだ場合の補正
-     *
-     * 例：
-     * 前回 358度
-     * 今回   3度
-     *
-     * 通常の引き算では-355度になるが、
-     * 実際には+5度回転している。
-     */
-    if (difference > 180) {
-        difference -= 360;
-    } else if (difference < -180) {
-        difference += 360;
-    }
-
-    // 画面用の連続角度に変化量を追加
-    visualAngle += difference;
-
-    // 今回のセンサ角度を保存
-    lastSensorAngle = receivedAngle;
-
+    // パズルへ反映
     updatePuzzleRotation();
 }
 
@@ -204,19 +163,36 @@ function processSerialLine(line) {
 // ==================================================
 
 function updatePuzzleRotation() {
-    // マイコンの角度とは符号を逆にした画面用角度
-    const screenAngle = -visualAngle;
+    /*
+     * マイコン側と画面側の回転方向を合わせるため、
+     * 累積角度の符号を反転する
+     */
+    const screenAngle = -cumulativeAngle;
 
+    /*
+     * 数値表示用の角度だけ一周以内に収める
+     *
+     *  370度 →  10度
+     * -370度 → -10度
+     */
+    let displayAngle = screenAngle % 360;
+
+    // -0.0と表示されるのを防ぐ
+    if (Math.abs(displayAngle) < 0.05) {
+        displayAngle = 0;
+    }
+
+    // 画面上の数値表示
     angleValue.textContent =
-        screenAngle.toFixed(1);
+        displayAngle.toFixed(1);
 
+    /*
+     * パズルの回転には累積角度を使用する
+     *
+     * 表示用角度を使用すると、
+     * 360度から0度に変わるときに
+     * 逆回転する可能性がある
+     */
     puzzleStage.style.transform =
         `rotate(${screenAngle}deg)`;
-
-    //ログ表示
-    console.log(
-    "受信角度:", lastSensorAngle,
-    "連続角度:", visualAngle,
-    "画面角度:", screenAngle
-);
 }
