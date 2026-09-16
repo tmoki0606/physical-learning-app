@@ -32,7 +32,7 @@ button {
      * マイコンが約5度ごとに送信するため、
      * 100ms程度のアニメーションにする
      */
-    transition: transform 100ms linear;
+    /*transition: transform 100ms linear;*/
 
     /*
      * パズルの中心を軸に回転
