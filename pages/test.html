@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/physical-learning-app/">
+    <title>回転パズルテスト</title>
+
+    <link rel="stylesheet" href="assets/css/test.css">
+</head>
+
+<body>
+    <h1>回転パズルテスト</h1>
+
+    <!-- マイコンとの接続ボタン -->
+    <button id="connectButton">
+        マイコンに接続
+    </button>
+
+    <!-- 接続状態 -->
+    <p id="status">
+        未接続
+    </p>
+
+    <!-- 現在の角度 -->
+    <p>
+        受信角度：
+        <span id="angleValue">0.0</span>°
+    </p>
+
+    <!--
+        実際にはこの中にパズルの盤面やピースを配置する
+    -->
+    <div id="puzzleStage">
+        <div class="samplePiece">
+            パズル全体
+        </div>
+    </div>
+
+    <script src="assets/js/test.js"></script>
+</body>
+</html>
