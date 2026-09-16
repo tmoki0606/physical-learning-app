@@ -1,0 +1,57 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 30px;
+    background-color: #f4f4f4;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/*
+ * パズル全体を囲む要素
+ *
+ * JavaScriptから、この要素のtransformを変更する
+ */
+#puzzleStage {
+    width: 400px;
+    height: 400px;
+    margin: 50px auto;
+
+    position: relative;
+
+    background-color: white;
+    border: 3px solid #333;
+
+    /*
+     * 角度データの間を滑らかにつなぐ
+     * マイコンが約5度ごとに送信するため、
+     * 100ms程度のアニメーションにする
+     */
+    transition: transform 100ms linear;
+
+    /*
+     * パズルの中心を軸に回転
+     */
+    transform-origin: center center;
+}
+
+.samplePiece {
+    width: 100px;
+    height: 100px;
+
+    position: absolute;
+    top: 50px;
+    left: 80px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    background-color: #3f78c5;
+}
