@@ -204,9 +204,12 @@ function processSerialLine(line) {
 // ==================================================
 
 function updatePuzzleRotation() {
+    // マイコンの角度とは符号を逆にした画面用角度
+    const screenAngle = -visualAngle;
+
     angleValue.textContent =
-        visualAngle.toFixed(1);
+        screenAngle.toFixed(1);
 
     puzzleStage.style.transform =
-        `rotate(${visualAngle}deg)`;
+        `rotate(${screenAngle}deg)`;
 }
