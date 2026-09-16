@@ -212,4 +212,11 @@ function updatePuzzleRotation() {
 
     puzzleStage.style.transform =
         `rotate(${screenAngle}deg)`;
+
+    //ログ表示
+    console.log(
+    "受信角度:", lastSensorAngle,
+    "連続角度:", visualAngle,
+    "画面角度:", screenAngle
+);
 }
