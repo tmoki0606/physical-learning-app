@@ -89,7 +89,7 @@ function initPuzzle() {
   const { hEdges, vEdges } = generateEdges(ROWS, COLS);
 
   // 90度単位の角度リスト
-  const angles = [0, 90, 180, 270];
+  //const angles = [0, 90, 180, 270];
 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -99,7 +99,7 @@ function initPuzzle() {
       const correctY = frameOffsetY + sy;
 
       const { x: initX, y: initY } = getRandomOutsidePosition();
-      const randomAngle = angles[Math.floor(Math.random() * angles.length)];
+      //const randomAngle = angles[Math.floor(Math.random() * angles.length)];
 
       const edges = [
         -hEdges[r][c],
@@ -115,7 +115,7 @@ function initPuzzle() {
         sy: sy,
         x: initX,
         y: initY,
-        angle: randomAngle,
+        angle: 0,
         correctX: correctX,
         correctY: correctY,
         edges: edges,
@@ -277,7 +277,7 @@ function getMousePos(e) {
 }
 
 // 右クリックでの回転操作のためデフォルトメニューを無効化
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+//canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 canvas.addEventListener('mousedown', (e) => {
   const pos = getMousePos(e);
