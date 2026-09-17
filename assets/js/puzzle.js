@@ -106,6 +106,9 @@ async function readSerialData() {
   }
 }
 
+if (connectSerialBtn) {
+  connectSerialBtn.addEventListener('click', connectSerial);
+}
 
 
 const canvas = document.getElementById('puzzleCanvas');
