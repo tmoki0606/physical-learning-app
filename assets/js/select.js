@@ -69,7 +69,7 @@ function renderPage() {
                 
                 // クリックで puzzle.html にレベル情報のみ渡して遷移
                 div.addEventListener('click', () => {
-                    const nextPage = 'puzzle.html';
+                    const nextPage = 'pages/puzzle.html';
                     window.location.href = `${nextPage}?revel=${encodeURIComponent(revel)}`;
                 });
 
