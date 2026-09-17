@@ -14,6 +14,99 @@ let frameAngle = 0;
 // 90度単位へ吸着させる範囲
 const SNAP_ANGLE_RANGE = 30;
 
+function getSnappedAngle(angle) {
+  const nearestAngle = Math.round(angle / 90) * 90;
+
+  if (Math.abs(angle - nearestAngle) <= SNAP_ANGLE_RANGE) {
+    return nearestAngle;
+  }
+
+  return angle;
+}
+
+function handleSerialLine(line) {
+  line = line.trim();
+  const parts = line.split(',');
+  // ANGLE,xx.x 以外は無視
+  if (parts[0] !== 'ANGLE' || parts.length < 2) {
+    return;
+  }
+  const receivedAngle = Number(parts[1]);
+  if (Number.isNaN(receivedAngle)) {
+    return;
+  }
+  frameAngle = getSnappedAngle(receivedAngle);
+  console.log(
+    `受信角度: ${receivedAngle}° / フレーム角度: ${frameAngle}°`
+  );
+  draw();
+}
+
+async function connectSerial() {
+  try {
+    // Web Serial APIが使えるか確認
+    if (!('serial' in navigator)) {
+      serialStatus.textContent = 'Web Serial APIに対応していません';
+      return;
+    }
+
+    // ユーザーに接続するシリアルポートを選んでもらう
+    serialPort = await navigator.serial.requestPort();
+
+    // マイコン側と同じ115200bps
+    await serialPort.open({
+      baudRate: 115200
+    });
+
+    serialStatus.textContent = '接続済み';
+
+    // 受信開始
+    readSerialData();
+
+  } catch (error) {
+    console.error('シリアル接続エラー:', error);
+    serialStatus.textContent = '接続失敗';
+  }
+}
+
+async function readSerialData() {
+  const decoder = new TextDecoderStream();
+
+  serialPort.readable.pipeTo(decoder.writable);
+
+  serialReader = decoder.readable.getReader();
+
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { value, done } = await serialReader.read();
+
+      if (done) {
+        break;
+      }
+
+      buffer += value;
+
+      const lines = buffer.split('\n');
+
+      // 最後の未完成行だけ次回へ残す
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        handleSerialLine(line);
+      }
+    }
+
+  } catch (error) {
+    console.error('シリアル受信エラー:', error);
+
+  } finally {
+    serialReader.releaseLock();
+  }
+}
+
+
 
 const canvas = document.getElementById('puzzleCanvas');
 const ctx = canvas.getContext('2d');
