@@ -361,6 +361,6 @@ const backBtn = document.getElementById('backBtn');
 if (backBtn) {
   backBtn.addEventListener('click', () => {
     // 実際の選択画面ファイル名（例: select.html）に合わせて調整してください
-    window.location.href = 'select.html';
+    window.location.href = 'pages/select.html';
   });
 }
