@@ -1,3 +1,20 @@
+// ==================================================
+// マイコン通信
+// ==================================================
+
+const connectSerialBtn = document.getElementById('connectSerialBtn');
+const serialStatus = document.getElementById('serialStatus');
+
+let serialPort = null;
+let serialReader = null;
+
+// マイコンから受け取ったフレームの角度
+let frameAngle = 0;
+
+// 90度単位へ吸着させる範囲
+const SNAP_ANGLE_RANGE = 30;
+
+
 const canvas = document.getElementById('puzzleCanvas');
 const ctx = canvas.getContext('2d');
 const messageEl = document.getElementById('message');
