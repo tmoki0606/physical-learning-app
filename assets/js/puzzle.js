@@ -289,11 +289,11 @@ canvas.addEventListener('mousedown', (e) => {
         pos.y >= p.y - 10 && pos.y <= p.y + pieceHeight + 10) {
 
       // 右クリック（button === 2）で90度回転
-      if (e.button === 2) {
+      /*if (e.button === 2) {
         p.angle = (p.angle + 90) % 360;
         draw();
         return;
-      }
+      }*/
 
       selectedPiece = p;
       dragOffsetX = pos.x - p.x;
