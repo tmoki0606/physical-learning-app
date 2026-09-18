@@ -267,6 +267,32 @@ function getRandomOutsidePosition() {
   return { x, y };
 }
 
+
+function getCorrectPosition(p) {
+  const frameCenterX = frameOffsetX + PUZZLE_WIDTH / 2;
+  const frameCenterY = frameOffsetY + PUZZLE_HEIGHT / 2;
+
+  const pieceCenterX = p.correctX + pieceWidth / 2;
+  const pieceCenterY = p.correctY + pieceHeight / 2;
+
+  const angle = frameAngle * Math.PI / 180;
+
+  const dx = pieceCenterX - frameCenterX;
+  const dy = pieceCenterY - frameCenterY;
+
+  const rotatedCenterX =
+    frameCenterX + dx * Math.cos(angle) - dy * Math.sin(angle);
+
+  const rotatedCenterY =
+    frameCenterY + dx * Math.sin(angle) + dy * Math.cos(angle);
+
+  return {
+    x: rotatedCenterX - pieceWidth / 2,
+    y: rotatedCenterY - pieceHeight / 2
+  };
+}
+
+
 function drawEdge(ctx, x1, y1, x2, y2, tabType) {
   if (tabType === 0) {
     ctx.lineTo(x2, y2);
@@ -324,6 +350,16 @@ function draw() {
   ctx.lineWidth = 2;
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
+  const frameCenterX = frameOffsetX + PUZZLE_WIDTH / 2;
+  const frameCenterY = frameOffsetY + PUZZLE_HEIGHT / 2;
+
+  ctx.save();
+
+  ctx.translate(frameCenterX, frameCenterY);
+  ctx.rotate((frameAngle * Math.PI) / 180);
+  ctx.translate(-frameCenterX, -frameCenterY);
+  
+  
   // パズル受け皿
   ctx.fillStyle = '#eaeaea';
   ctx.fillRect(frameOffsetX, frameOffsetY, PUZZLE_WIDTH, PUZZLE_HEIGHT);
@@ -337,6 +373,8 @@ function draw() {
     ctx.stroke();
     ctx.restore();
   });
+
+  ctx.restore();
 
   // ピースの描画
   pieces.forEach(p => {
@@ -432,15 +470,17 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseup', () => {
   if (!selectedPiece) return;
 
+  const correctPosition = getCorrectPosition(selectedPiece);
+
   const dist = Math.hypot(
-    selectedPiece.x - selectedPiece.correctX,
-    selectedPiece.y - selectedPiece.correctY
+    selectedPiece.x - correctPosition.x,
+    selectedPiece.y - correctPosition.y
   );
 
   // はめ込み判定: 正しい位置 ＆ 角度が0度
   if (dist < SNAP_DISTANCE && selectedPiece.angle % 360 === 0) {
-    selectedPiece.x = selectedPiece.correctX;
-    selectedPiece.y = selectedPiece.correctY;
+    selectedPiece.x = correctPosition.x;
+    selectedPiece.y = correctPosition.y;
     selectedPiece.angle = 0;
     selectedPiece.isLocked = true;
   }
