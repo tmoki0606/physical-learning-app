@@ -202,7 +202,7 @@ function initPuzzle() {
   const { hEdges, vEdges } = generateEdges(ROWS, COLS);
 
   // 90度単位の角度リスト
-  //const angles = [0, 90, 180, 270];
+  const angles = [0, 90, 180, 270];
 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -212,7 +212,7 @@ function initPuzzle() {
       const correctY = frameOffsetY + sy;
 
       const { x: initX, y: initY } = getRandomOutsidePosition();
-      //const randomAngle = angles[Math.floor(Math.random() * angles.length)];
+      const randomAngle = angles[Math.floor(Math.random() * angles.length)];
 
       const edges = [
         -hEdges[r][c],
@@ -228,7 +228,7 @@ function initPuzzle() {
         sy: sy,
         x: initX,
         y: initY,
-        angle: 0,
+        angle: randomAngle,
         correctX: correctX,
         correctY: correctY,
         edges: edges,
@@ -481,7 +481,6 @@ canvas.addEventListener('mouseup', () => {
   if (dist < SNAP_DISTANCE && selectedPiece.angle % 360 === 0) {
     selectedPiece.x = correctPosition.x;
     selectedPiece.y = correctPosition.y;
-    selectedPiece.angle = 0;
     selectedPiece.isLocked = true;
   }
 
