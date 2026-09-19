@@ -28,7 +28,6 @@ function handleSerialLine(line) {
   line = line.trim();
   const parts = line.split(',');
 
-  // ANGLE,xx.x 以外は無視
   if (parts[0] !== 'ANGLE' || parts.length < 2) {
     return;
   }
@@ -146,6 +145,7 @@ const frameOffsetY = (canvas.height - PUZZLE_HEIGHT) / 2;
 
 const pieceWidth = PUZZLE_WIDTH / COLS;
 const pieceHeight = PUZZLE_HEIGHT / ROWS;
+
 const SNAP_DISTANCE = 30;
 
 let pieces = [];
@@ -168,7 +168,9 @@ const randomImages = [
 ];
 
 const img = new Image();
+
 img.src = randomImages[Math.floor(Math.random() * randomImages.length)];
+
 img.crossOrigin = 'Anonymous';
 
 img.onload = () => {
@@ -225,6 +227,8 @@ function initPuzzle() {
 
   const { hEdges, vEdges } = generateEdges(ROWS, COLS);
 
+  // ピースは最初からランダムな向き
+  // プレイ中に回転させることはできない
   const angles = [0, 90, 180, 270];
 
   for (let r = 0; r < ROWS; r++) {
@@ -237,7 +241,8 @@ function initPuzzle() {
 
       const { x: initX, y: initY } = getRandomOutsidePosition();
 
-      const randomAngle = angles[Math.floor(Math.random() * angles.length)];
+      const randomAngle =
+        angles[Math.floor(Math.random() * angles.length)];
 
       const edges = [
         -hEdges[r][c],
@@ -253,13 +258,18 @@ function initPuzzle() {
         sy: sy,
         x: initX,
         y: initY,
+
+        // ピース自身の向き
         angle: randomAngle,
+
         correctX: correctX,
         correctY: correctY,
+
         edges: edges,
+
         isLocked: false,
 
-        // はめ込んだときのフレーム角度
+        // ピースをはめ込んだときのフレーム角度
         lockedFrameAngle: 0
       });
     }
@@ -274,38 +284,61 @@ function initPuzzle() {
 
 function getRandomOutsidePosition() {
   const zone = Math.floor(Math.random() * 4);
-  let x, y;
+
+  let x;
+  let y;
 
   switch (zone) {
     case 0:
       x = Math.random() * (canvas.width - pieceWidth);
-      y = Math.random() * Math.max(0, frameOffsetY - pieceHeight);
+      y = Math.random() * Math.max(
+        0,
+        frameOffsetY - pieceHeight
+      );
       break;
 
     case 1:
       x = Math.random() * (canvas.width - pieceWidth);
-      y = frameOffsetY + PUZZLE_HEIGHT + Math.random() * Math.max(
-        0,
-        canvas.height - (frameOffsetY + PUZZLE_HEIGHT) - pieceHeight
-      );
+      y = frameOffsetY +
+        PUZZLE_HEIGHT +
+        Math.random() * Math.max(
+          0,
+          canvas.height -
+          (frameOffsetY + PUZZLE_HEIGHT) -
+          pieceHeight
+        );
       break;
 
     case 2:
-      x = Math.random() * Math.max(0, frameOffsetX - pieceWidth);
+      x = Math.random() * Math.max(
+        0,
+        frameOffsetX - pieceWidth
+      );
       y = Math.random() * (canvas.height - pieceHeight);
       break;
 
     case 3:
-      x = frameOffsetX + PUZZLE_WIDTH + Math.random() * Math.max(
-        0,
-        canvas.width - (frameOffsetX + PUZZLE_WIDTH) - pieceWidth
-      );
+      x = frameOffsetX +
+        PUZZLE_WIDTH +
+        Math.random() * Math.max(
+          0,
+          canvas.width -
+          (frameOffsetX + PUZZLE_WIDTH) -
+          pieceWidth
+        );
       y = Math.random() * (canvas.height - pieceHeight);
       break;
   }
 
-  x = Math.max(0, Math.min(x, canvas.width - pieceWidth));
-  y = Math.max(0, Math.min(y, canvas.height - pieceHeight));
+  x = Math.max(
+    0,
+    Math.min(x, canvas.width - pieceWidth)
+  );
+
+  y = Math.max(
+    0,
+    Math.min(y, canvas.height - pieceHeight)
+  );
 
   return { x, y };
 }
@@ -313,26 +346,40 @@ function getRandomOutsidePosition() {
 
 
 // ==================================================
-// フレームの向きを考慮した正解位置
+// フレームの回転を考慮した正解位置
 // ==================================================
 
 function getCorrectPosition(p) {
-  const frameCenterX = frameOffsetX + PUZZLE_WIDTH / 2;
-  const frameCenterY = frameOffsetY + PUZZLE_HEIGHT / 2;
+  const frameCenterX =
+    frameOffsetX + PUZZLE_WIDTH / 2;
 
-  const pieceCenterX = p.correctX + pieceWidth / 2;
-  const pieceCenterY = p.correctY + pieceHeight / 2;
+  const frameCenterY =
+    frameOffsetY + PUZZLE_HEIGHT / 2;
 
-  const angle = frameAngle * Math.PI / 180;
+  const pieceCenterX =
+    p.correctX + pieceWidth / 2;
 
-  const dx = pieceCenterX - frameCenterX;
-  const dy = pieceCenterY - frameCenterY;
+  const pieceCenterY =
+    p.correctY + pieceHeight / 2;
+
+  const angle =
+    frameAngle * Math.PI / 180;
+
+  const dx =
+    pieceCenterX - frameCenterX;
+
+  const dy =
+    pieceCenterY - frameCenterY;
 
   const rotatedCenterX =
-    frameCenterX + dx * Math.cos(angle) - dy * Math.sin(angle);
+    frameCenterX +
+    dx * Math.cos(angle) -
+    dy * Math.sin(angle);
 
   const rotatedCenterY =
-    frameCenterY + dx * Math.sin(angle) + dy * Math.cos(angle);
+    frameCenterY +
+    dx * Math.sin(angle) +
+    dy * Math.cos(angle);
 
   return {
     x: rotatedCenterX - pieceWidth / 2,
@@ -343,21 +390,31 @@ function getCorrectPosition(p) {
 
 
 // ==================================================
-// はめ込まれたピースの位置をフレーム回転に追従させる
+// はめ込まれたピースのフレーム追従
 // ==================================================
 
 function getLockedPieceTransform(p) {
-  const frameCenterX = frameOffsetX + PUZZLE_WIDTH / 2;
-  const frameCenterY = frameOffsetY + PUZZLE_HEIGHT / 2;
+  const frameCenterX =
+    frameOffsetX + PUZZLE_WIDTH / 2;
 
-  const pieceCenterX = p.x + pieceWidth / 2;
-  const pieceCenterY = p.y + pieceHeight / 2;
+  const frameCenterY =
+    frameOffsetY + PUZZLE_HEIGHT / 2;
+
+  const pieceCenterX =
+    p.x + pieceWidth / 2;
+
+  const pieceCenterY =
+    p.y + pieceHeight / 2;
 
   const rotation =
-    (frameAngle - p.lockedFrameAngle) * Math.PI / 180;
+    (frameAngle - p.lockedFrameAngle) *
+    Math.PI / 180;
 
-  const dx = pieceCenterX - frameCenterX;
-  const dy = pieceCenterY - frameCenterY;
+  const dx =
+    pieceCenterX - frameCenterX;
+
+  const dy =
+    pieceCenterY - frameCenterY;
 
   const rotatedCenterX =
     frameCenterX +
@@ -372,8 +429,32 @@ function getLockedPieceTransform(p) {
   return {
     x: rotatedCenterX,
     y: rotatedCenterY,
-    angle: p.angle + (frameAngle - p.lockedFrameAngle)
+
+    angle:
+      p.angle +
+      (frameAngle - p.lockedFrameAngle)
   };
+}
+
+
+
+// ==================================================
+// ピースの角度比較
+// ==================================================
+
+function isSameAngle(angle1, angle2) {
+  const normalized1 =
+    ((angle1 % 360) + 360) % 360;
+
+  const normalized2 =
+    ((angle2 % 360) + 360) % 360;
+
+  const difference =
+    Math.abs(
+      ((normalized1 - normalized2 + 180) % 360) - 180
+    );
+
+  return difference < 1;
 }
 
 
@@ -382,7 +463,14 @@ function getLockedPieceTransform(p) {
 // ピースの輪郭
 // ==================================================
 
-function drawEdge(ctx, x1, y1, x2, y2, tabType) {
+function drawEdge(
+  ctx,
+  x1,
+  y1,
+  x2,
+  y2,
+  tabType
+) {
   if (tabType === 0) {
     ctx.lineTo(x2, y2);
     return;
@@ -392,8 +480,11 @@ function drawEdge(ctx, x1, y1, x2, y2, tabType) {
   const dy = y2 - y1;
   const length = Math.hypot(dx, dy);
 
-  const nx = (-dy / length) * tabType;
-  const ny = (dx / length) * tabType;
+  const nx =
+    (-dy / length) * tabType;
+
+  const ny =
+    (dx / length) * tabType;
 
   const tabSize = length * 0.2;
 
@@ -403,7 +494,11 @@ function drawEdge(ctx, x1, y1, x2, y2, tabType) {
   });
 
   const base1 = p(0.35, 0);
-  ctx.lineTo(base1.x, base1.y);
+
+  ctx.lineTo(
+    base1.x,
+    base1.y
+  );
 
   const cp1 = p(0.35, 0.6);
   const cp2 = p(0.40, 1.0);
@@ -413,28 +508,76 @@ function drawEdge(ctx, x1, y1, x2, y2, tabType) {
   const base2 = p(0.65, 0);
 
   ctx.bezierCurveTo(
-    cp1.x, cp1.y,
-    cp2.x, cp2.y,
-    top.x, top.y
+    cp1.x,
+    cp1.y,
+    cp2.x,
+    cp2.y,
+    top.x,
+    top.y
   );
 
   ctx.bezierCurveTo(
-    cp3.x, cp3.y,
-    cp4.x, cp4.y,
-    base2.x, base2.y
+    cp3.x,
+    cp3.y,
+    cp4.x,
+    cp4.y,
+    base2.x,
+    base2.y
   );
 
-  ctx.lineTo(x2, y2);
+  ctx.lineTo(
+    x2,
+    y2
+  );
 }
 
-function createPiecePath(ctx, x, y, w, h, edges) {
+function createPiecePath(
+  ctx,
+  x,
+  y,
+  w,
+  h,
+  edges
+) {
   ctx.beginPath();
+
   ctx.moveTo(x, y);
 
-  drawEdge(ctx, x, y, x + w, y, edges[0]);
-  drawEdge(ctx, x + w, y, x + w, y + h, edges[1]);
-  drawEdge(ctx, x + w, y + h, x, y + h, edges[2]);
-  drawEdge(ctx, x, y + h, x, y, edges[3]);
+  drawEdge(
+    ctx,
+    x,
+    y,
+    x + w,
+    y,
+    edges[0]
+  );
+
+  drawEdge(
+    ctx,
+    x + w,
+    y,
+    x + w,
+    y + h,
+    edges[1]
+  );
+
+  drawEdge(
+    ctx,
+    x + w,
+    y + h,
+    x,
+    y + h,
+    edges[2]
+  );
+
+  drawEdge(
+    ctx,
+    x,
+    y + h,
+    x,
+    y,
+    edges[3]
+  );
 
   ctx.closePath();
 }
@@ -446,15 +589,31 @@ function createPiecePath(ctx, x, y, w, h, edges) {
 // ==================================================
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
   // Canvas全体の外枠
   ctx.strokeStyle = '#ccc';
   ctx.lineWidth = 2;
-  ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-  const frameCenterX = frameOffsetX + PUZZLE_WIDTH / 2;
-  const frameCenterY = frameOffsetY + PUZZLE_HEIGHT / 2;
+  ctx.strokeRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  const frameCenterX =
+    frameOffsetX + PUZZLE_WIDTH / 2;
+
+  const frameCenterY =
+    frameOffsetY + PUZZLE_HEIGHT / 2;
+
+
 
   // ==================================================
   // フレーム
@@ -462,12 +621,23 @@ function draw() {
 
   ctx.save();
 
-  ctx.translate(frameCenterX, frameCenterY);
-  ctx.rotate((frameAngle * Math.PI) / 180);
-  ctx.translate(-frameCenterX, -frameCenterY);
+  ctx.translate(
+    frameCenterX,
+    frameCenterY
+  );
+
+  ctx.rotate(
+    frameAngle * Math.PI / 180
+  );
+
+  ctx.translate(
+    -frameCenterX,
+    -frameCenterY
+  );
 
   // パズル受け皿
   ctx.fillStyle = '#eaeaea';
+
   ctx.fillRect(
     frameOffsetX,
     frameOffsetY,
@@ -478,6 +648,7 @@ function draw() {
   // フレーム外周
   ctx.strokeStyle = '#555';
   ctx.lineWidth = 8;
+
   ctx.strokeRect(
     frameOffsetX,
     frameOffsetY,
@@ -500,10 +671,13 @@ function draw() {
 
     ctx.strokeStyle = '#b5b5b5';
     ctx.lineWidth = 2;
+
     ctx.stroke();
 
     ctx.restore();
   });
+
+
 
   // ==================================================
   // フレームの向きを示す矢印
@@ -514,9 +688,14 @@ function draw() {
 
   ctx.save();
 
-  ctx.translate(arrowX, arrowY);
+  ctx.translate(
+    arrowX,
+    arrowY
+  );
 
-  ctx.rotate((frameAngle * Math.PI) / 180);
+  ctx.rotate(
+    frameAngle * Math.PI / 180
+  );
 
   ctx.fillStyle = '#555';
   ctx.strokeStyle = '#555';
@@ -524,16 +703,21 @@ function draw() {
 
   // 矢印の棒
   ctx.beginPath();
+
   ctx.moveTo(0, 18);
   ctx.lineTo(0, -10);
+
   ctx.stroke();
 
   // 矢印の先端
   ctx.beginPath();
+
   ctx.moveTo(0, -18);
   ctx.lineTo(-8, -7);
   ctx.lineTo(8, -7);
+
   ctx.closePath();
+
   ctx.fill();
 
   ctx.restore();
@@ -555,21 +739,42 @@ function draw() {
 
     // はめ込まれたピースはフレームの回転に追従
     if (p.isLocked) {
-      const transform = getLockedPieceTransform(p);
+      const transform =
+        getLockedPieceTransform(p);
 
-      drawX = transform.x - pieceWidth / 2;
-      drawY = transform.y - pieceHeight / 2;
-      drawAngle = transform.angle;
+      drawX =
+        transform.x - pieceWidth / 2;
+
+      drawY =
+        transform.y - pieceHeight / 2;
+
+      drawAngle =
+        transform.angle;
     }
 
-    const centerX = drawX + pieceWidth / 2;
-    const centerY = drawY + pieceHeight / 2;
+    const centerX =
+      drawX + pieceWidth / 2;
 
-    ctx.translate(centerX, centerY);
-    ctx.rotate((drawAngle * Math.PI) / 180);
-    ctx.translate(-centerX, -centerY);
+    const centerY =
+      drawY + pieceHeight / 2;
 
-    // パズル形状で切り抜き
+
+
+    // ピース画像
+    ctx.translate(
+      centerX,
+      centerY
+    );
+
+    ctx.rotate(
+      drawAngle * Math.PI / 180
+    );
+
+    ctx.translate(
+      -centerX,
+      -centerY
+    );
+
     createPiecePath(
       ctx,
       drawX,
@@ -581,7 +786,6 @@ function draw() {
 
     ctx.clip();
 
-    // 元画像の描画
     ctx.drawImage(
       img,
       drawX - p.sx,
@@ -592,12 +796,24 @@ function draw() {
 
     ctx.restore();
 
-    // ピースの輪郭線
+
+
+    // ピースの輪郭
     ctx.save();
 
-    ctx.translate(centerX, centerY);
-    ctx.rotate((drawAngle * Math.PI) / 180);
-    ctx.translate(-centerX, -centerY);
+    ctx.translate(
+      centerX,
+      centerY
+    );
+
+    ctx.rotate(
+      drawAngle * Math.PI / 180
+    );
+
+    ctx.translate(
+      -centerX,
+      -centerY
+    );
 
     createPiecePath(
       ctx,
@@ -608,8 +824,12 @@ function draw() {
       p.edges
     );
 
-    ctx.strokeStyle = p.isLocked ? '#4CAF50' : '#333';
-    ctx.lineWidth = p.isLocked ? 2 : 1.5;
+    ctx.strokeStyle =
+      p.isLocked ? '#4CAF50' : '#333';
+
+    ctx.lineWidth =
+      p.isLocked ? 2 : 1.5;
+
     ctx.stroke();
 
     ctx.restore();
@@ -619,92 +839,142 @@ function draw() {
 
 
 // ==================================================
-// マウス操作
+// マウス位置
 // ==================================================
 
 function getMousePos(e) {
-  const rect = canvas.getBoundingClientRect();
+  const rect =
+    canvas.getBoundingClientRect();
 
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
+    x:
+      e.clientX - rect.left,
+
+    y:
+      e.clientY - rect.top
   };
 }
 
+
+
+// ==================================================
+// マウス操作
+// ==================================================
+
 // ピースの回転操作は無効
-// canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+// 右クリックしても回転しない
 
-canvas.addEventListener('mousedown', (e) => {
-  const pos = getMousePos(e);
+canvas.addEventListener(
+  'mousedown',
+  (e) => {
+    const pos = getMousePos(e);
 
-  for (let i = pieces.length - 1; i >= 0; i--) {
-    const p = pieces[i];
-
-    if (
-      !p.isLocked &&
-      pos.x >= p.x - 10 &&
-      pos.x <= p.x + pieceWidth + 10 &&
-      pos.y >= p.y - 10 &&
-      pos.y <= p.y + pieceHeight + 10
+    for (
+      let i = pieces.length - 1;
+      i >= 0;
+      i--
     ) {
+      const p = pieces[i];
 
-      // ピースの回転操作は行わない
-      // if (e.button === 2) {
-      //   p.angle = (p.angle + 90) % 360;
-      //   draw();
-      //   return;
-      // }
+      if (
+        !p.isLocked &&
+        pos.x >= p.x - 10 &&
+        pos.x <= p.x + pieceWidth + 10 &&
+        pos.y >= p.y - 10 &&
+        pos.y <= p.y + pieceHeight + 10
+      ) {
+        selectedPiece = p;
 
-      selectedPiece = p;
+        dragOffsetX =
+          pos.x - p.x;
 
-      dragOffsetX = pos.x - p.x;
-      dragOffsetY = pos.y - p.y;
+        dragOffsetY =
+          pos.y - p.y;
 
-      pieces.splice(i, 1);
-      pieces.push(selectedPiece);
+        // 選択したピースを最前面へ
+        pieces.splice(i, 1);
+        pieces.push(selectedPiece);
 
-      break;
+        break;
+      }
     }
   }
-});
+);
 
-canvas.addEventListener('mousemove', (e) => {
-  if (!selectedPiece) return;
+canvas.addEventListener(
+  'mousemove',
+  (e) => {
+    if (!selectedPiece) return;
 
-  const pos = getMousePos(e);
+    const pos =
+      getMousePos(e);
 
-  selectedPiece.x = pos.x - dragOffsetX;
-  selectedPiece.y = pos.y - dragOffsetY;
+    selectedPiece.x =
+      pos.x - dragOffsetX;
 
-  draw();
-});
+    selectedPiece.y =
+      pos.y - dragOffsetY;
 
-canvas.addEventListener('mouseup', () => {
-  if (!selectedPiece) return;
-
-  const correctPosition = getCorrectPosition(selectedPiece);
-
-  const dist = Math.hypot(
-    selectedPiece.x - correctPosition.x,
-    selectedPiece.y - correctPosition.y
-  );
-
-  // 正しい位置なら、その時のフレーム角度を記録して吸着
-  if (dist < SNAP_DISTANCE) {
-    selectedPiece.x = correctPosition.x;
-    selectedPiece.y = correctPosition.y;
-
-    // はめ込んだ瞬間のフレーム角度を記録
-    selectedPiece.lockedFrameAngle = frameAngle;
-
-    selectedPiece.isLocked = true;
+    draw();
   }
+);
 
-  selectedPiece = null;
+canvas.addEventListener(
+  'mouseup',
+  () => {
+    if (!selectedPiece) return;
 
-  draw();
-  checkCompletion();
-});
+    const correctPosition =
+      getCorrectPosition(selectedPiece);
+
+    const dist =
+      Math.hypot(
+        selectedPiece.x -
+          correctPosition.x,
+
+        selectedPiece.y -
+          correctPosition.y
+      );
+
+    // ------------------------------------------
+    // ピースとフレームの向きを確認
+    // ------------------------------------------
+
+    const isCorrectAngle =
+      isSameAngle(
+        selectedPiece.angle,
+        frameAngle
+      );
+
+    // ------------------------------------------
+    // 位置と向きの両方が正しければ吸着
+    // ------------------------------------------
+
+    if (
+      dist < SNAP_DISTANCE &&
+      isCorrectAngle
+    ) {
+      selectedPiece.x =
+        correctPosition.x;
+
+      selectedPiece.y =
+        correctPosition.y;
+
+      // はめ込んだ瞬間のフレーム角度を記録
+      selectedPiece.lockedFrameAngle =
+        frameAngle;
+
+      selectedPiece.isLocked =
+        true;
+    }
+
+    selectedPiece = null;
+
+    draw();
+
+    checkCompletion();
+  }
+);
 
 
 
@@ -713,34 +983,56 @@ canvas.addEventListener('mouseup', () => {
 // ==================================================
 
 function checkCompletion() {
-  const isComplete = pieces.every(p => p.isLocked);
+  const isComplete =
+    pieces.every(
+      p => p.isLocked
+    );
 
   if (isComplete) {
-    messageEl.textContent = '🎉 パズル完成！おめでとうございます！';
+    messageEl.textContent =
+      '🎉 パズル完成！おめでとうございます！';
   }
 }
 
 
 
 // ==================================================
-// ボタン操作
+// リスタート
 // ==================================================
 
-const restartBtn = document.getElementById('restartBtn');
+const restartBtn =
+  document.getElementById('restartBtn');
 
 if (restartBtn) {
-  restartBtn.addEventListener('click', () => {
-    messageEl.textContent = '';
-    frameAngle = 0;
-    initPuzzle();
-    draw();
-  });
+  restartBtn.addEventListener(
+    'click',
+    () => {
+      messageEl.textContent = '';
+
+      frameAngle = 0;
+
+      initPuzzle();
+
+      draw();
+    }
+  );
 }
 
-const backBtn = document.getElementById('backBtn');
+
+
+// ==================================================
+// 戻るボタン
+// ==================================================
+
+const backBtn =
+  document.getElementById('backBtn');
 
 if (backBtn) {
-  backBtn.addEventListener('click', () => {
-    window.location.href = 'pages/select.html';
-  });
+  backBtn.addEventListener(
+    'click',
+    () => {
+      window.location.href =
+        'pages/select.html';
+    }
+  );
 }
