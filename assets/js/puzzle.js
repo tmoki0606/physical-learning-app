@@ -39,7 +39,8 @@ function handleSerialLine(line) {
     return;
   }
 
-  frameAngle = getSnappedAngle(receivedAngle);
+  // マイコンと画面上の回転方向を合わせる
+  frameAngle = -getSnappedAngle(receivedAngle);
 
   console.log(
     `受信角度: ${receivedAngle}° / フレーム角度: ${frameAngle}°`
@@ -50,23 +51,19 @@ function handleSerialLine(line) {
 
 async function connectSerial() {
   try {
-    // Web Serial APIが使えるか確認
     if (!('serial' in navigator)) {
       serialStatus.textContent = 'Web Serial APIに対応していません';
       return;
     }
 
-    // ユーザーに接続するシリアルポートを選んでもらう
     serialPort = await navigator.serial.requestPort();
 
-    // マイコン側と同じ115200bps
     await serialPort.open({
       baudRate: 115200
     });
 
     serialStatus.textContent = '接続済み';
 
-    // 受信開始
     readSerialData();
 
   } catch (error) {
@@ -96,7 +93,6 @@ async function readSerialData() {
 
       const lines = buffer.split('\n');
 
-      // 最後の未完成行だけ次回へ残す
       buffer = lines.pop();
 
       for (const line of lines) {
@@ -126,23 +122,19 @@ const canvas = document.getElementById('puzzleCanvas');
 const ctx = canvas.getContext('2d');
 const messageEl = document.getElementById('message');
 
-// URLパラメータから分割数(grid)を取得
 const urlParams = new URLSearchParams(window.location.search);
 const gridParam = urlParams.get('grid') || '2*2';
 
-// "4*4" や "3*3" を分解してCOLS、ROWSにセット
 const [colsParsed, rowsParsed] = gridParam.split('*').map(Number);
 const COLS = colsParsed || 2;
 const ROWS = rowsParsed || 2;
 
-// 画面上のh1タイトルを分割数に合わせて動的に更新
 const h1El = document.getElementById('puzzleTitle') || document.querySelector('h1');
 
 if (h1El) {
   h1El.textContent = `ジグソーパズル (${COLS}×${ROWS})`;
 }
 
-// Canvasサイズとパズル設定
 canvas.width = 1000;
 canvas.height = 530;
 
@@ -152,7 +144,6 @@ const PUZZLE_HEIGHT = 400;
 const frameOffsetX = (canvas.width - PUZZLE_WIDTH) / 2;
 const frameOffsetY = (canvas.height - PUZZLE_HEIGHT) / 2;
 
-// 分割数に応じたピースサイズの計算
 const pieceWidth = PUZZLE_WIDTH / COLS;
 const pieceHeight = PUZZLE_HEIGHT / ROWS;
 const SNAP_DISTANCE = 30;
@@ -161,6 +152,8 @@ let pieces = [];
 let selectedPiece = null;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+
+
 
 // ==================================================
 // ランダム画像
@@ -232,7 +225,6 @@ function initPuzzle() {
 
   const { hEdges, vEdges } = generateEdges(ROWS, COLS);
 
-  // ピースの初期角度
   const angles = [0, 90, 180, 270];
 
   for (let r = 0; r < ROWS; r++) {
@@ -245,8 +237,6 @@ function initPuzzle() {
 
       const { x: initX, y: initY } = getRandomOutsidePosition();
 
-      // ピースの向きだけランダムにする
-      // ゲーム中は回転させない
       const randomAngle = angles[Math.floor(Math.random() * angles.length)];
 
       const edges = [
@@ -267,7 +257,10 @@ function initPuzzle() {
         correctX: correctX,
         correctY: correctY,
         edges: edges,
-        isLocked: false
+        isLocked: false,
+
+        // はめ込んだときのフレーム角度
+        lockedFrameAngle: 0
       });
     }
   }
@@ -344,6 +337,42 @@ function getCorrectPosition(p) {
   return {
     x: rotatedCenterX - pieceWidth / 2,
     y: rotatedCenterY - pieceHeight / 2
+  };
+}
+
+
+
+// ==================================================
+// はめ込まれたピースの位置をフレーム回転に追従させる
+// ==================================================
+
+function getLockedPieceTransform(p) {
+  const frameCenterX = frameOffsetX + PUZZLE_WIDTH / 2;
+  const frameCenterY = frameOffsetY + PUZZLE_HEIGHT / 2;
+
+  const pieceCenterX = p.x + pieceWidth / 2;
+  const pieceCenterY = p.y + pieceHeight / 2;
+
+  const rotation =
+    (frameAngle - p.lockedFrameAngle) * Math.PI / 180;
+
+  const dx = pieceCenterX - frameCenterX;
+  const dy = pieceCenterY - frameCenterY;
+
+  const rotatedCenterX =
+    frameCenterX +
+    dx * Math.cos(rotation) -
+    dy * Math.sin(rotation);
+
+  const rotatedCenterY =
+    frameCenterY +
+    dx * Math.sin(rotation) +
+    dy * Math.cos(rotation);
+
+  return {
+    x: rotatedCenterX,
+    y: rotatedCenterY,
+    angle: p.angle + (frameAngle - p.lockedFrameAngle)
   };
 }
 
@@ -433,7 +462,6 @@ function draw() {
 
   ctx.save();
 
-  // フレームの中心を基準に回転
   ctx.translate(frameCenterX, frameCenterY);
   ctx.rotate((frameAngle * Math.PI) / 180);
   ctx.translate(-frameCenterX, -frameCenterY);
@@ -488,7 +516,6 @@ function draw() {
 
   ctx.translate(arrowX, arrowY);
 
-  // フレームと同じ角度だけ回転
   ctx.rotate((frameAngle * Math.PI) / 180);
 
   ctx.fillStyle = '#555';
@@ -522,20 +549,31 @@ function draw() {
   pieces.forEach(p => {
     ctx.save();
 
-    const centerX = p.x + pieceWidth / 2;
-    const centerY = p.y + pieceHeight / 2;
+    let drawX = p.x;
+    let drawY = p.y;
+    let drawAngle = p.angle;
 
-    // ピース自身の初期角度
-    // ゲーム中にこの値は変更しない
+    // はめ込まれたピースはフレームの回転に追従
+    if (p.isLocked) {
+      const transform = getLockedPieceTransform(p);
+
+      drawX = transform.x - pieceWidth / 2;
+      drawY = transform.y - pieceHeight / 2;
+      drawAngle = transform.angle;
+    }
+
+    const centerX = drawX + pieceWidth / 2;
+    const centerY = drawY + pieceHeight / 2;
+
     ctx.translate(centerX, centerY);
-    ctx.rotate((p.angle * Math.PI) / 180);
+    ctx.rotate((drawAngle * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
     // パズル形状で切り抜き
     createPiecePath(
       ctx,
-      p.x,
-      p.y,
+      drawX,
+      drawY,
       pieceWidth,
       pieceHeight,
       p.edges
@@ -546,8 +584,8 @@ function draw() {
     // 元画像の描画
     ctx.drawImage(
       img,
-      p.x - p.sx,
-      p.y - p.sy,
+      drawX - p.sx,
+      drawY - p.sy,
       PUZZLE_WIDTH,
       PUZZLE_HEIGHT
     );
@@ -558,13 +596,13 @@ function draw() {
     ctx.save();
 
     ctx.translate(centerX, centerY);
-    ctx.rotate((p.angle * Math.PI) / 180);
+    ctx.rotate((drawAngle * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
     createPiecePath(
       ctx,
-      p.x,
-      p.y,
+      drawX,
+      drawY,
       pieceWidth,
       pieceHeight,
       p.edges
@@ -651,10 +689,14 @@ canvas.addEventListener('mouseup', () => {
     selectedPiece.y - correctPosition.y
   );
 
-  // 正しい位置なら、ピースの向きを変えずに吸着
+  // 正しい位置なら、その時のフレーム角度を記録して吸着
   if (dist < SNAP_DISTANCE) {
     selectedPiece.x = correctPosition.x;
     selectedPiece.y = correctPosition.y;
+
+    // はめ込んだ瞬間のフレーム角度を記録
+    selectedPiece.lockedFrameAngle = frameAngle;
+
     selectedPiece.isLocked = true;
   }
 
@@ -684,18 +726,17 @@ function checkCompletion() {
 // ボタン操作
 // ==================================================
 
-// リスタート機能
 const restartBtn = document.getElementById('restartBtn');
 
 if (restartBtn) {
   restartBtn.addEventListener('click', () => {
     messageEl.textContent = '';
+    frameAngle = 0;
     initPuzzle();
     draw();
   });
 }
 
-// マス目選択画面に戻る
 const backBtn = document.getElementById('backBtn');
 
 if (backBtn) {
