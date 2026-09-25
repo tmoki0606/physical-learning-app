@@ -29,7 +29,7 @@ const unitDatabase = {
     },
     "revel3": {
         "5*5": ["マス目"],
-        "6*6": ["マス目"]
+        "6*6": ["マス目"],
     }
 };
 
@@ -54,7 +54,7 @@ function renderPage() {
         const cardsWrapper = document.createElement('div');
         cardsWrapper.className = 'cards-wrapper';
 
-        // 各テーマ（flower, morning, viewなど）をループ
+        // 各テーマ（2*2, 3*3 など）をループ
         Object.keys(unitDatabase[revel]).forEach(subjectKey => {
             const categoryName = subjectNames[subjectKey] || subjectKey;
             const units = unitDatabase[revel][subjectKey];
@@ -64,13 +64,13 @@ function renderPage() {
                 const div = document.createElement('div');
                 div.className = 'unit-card';
                 
-                // 「ひまわり（花）」のような形式で表示
+                // 「マス目（2×2）」のような形式で表示
                 div.textContent = `${unitName}（${categoryName}）`;
                 
-                // クリックで puzzle.html にレベル情報のみ渡して遷移
+                // 【修正点】遷移先を pazuru.html に変更
                 div.addEventListener('click', () => {
-                    const nextPage = 'pages/puzzle.html';
-                    window.location.href = `${nextPage}?revel=${encodeURIComponent(revel)}`;
+                    const nextPage = 'pazuru.html';
+                    window.location.href = `${nextPage}?revel=${encodeURIComponent(revel)}&grid=${encodeURIComponent(subjectKey)}`;
                 });
 
                 cardsWrapper.appendChild(div);
