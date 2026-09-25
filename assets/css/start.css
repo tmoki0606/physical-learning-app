@@ -1,43 +1,79 @@
 body {
-    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    background-color: #f4f7f9; /* 薄いグレーの背景で落ち着いた雰囲気に */
-    color: #333333;
-    margin: 0;
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 画面の真ん中に寄せる */
+      margin: 0;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: sans-serif;
+    }
+    h1 { margin: 15px 0 5px; }
+    #puzzle-container {
+      position: relative;
+      margin-top: 10px;
+    }
+    canvas {
+      border: 3px solid #333;
+      background-color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    #message {
+      margin-top: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2e7d32;
+      height: 2rem;
+    }
+
+    /* --- ボタンエリアのスタイル --- */
+#controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
 }
 
-h1 {
-    font-size: 28px;
-    color: #1a365d; /* 濃い紺色でスマートな印象に */
-    margin-bottom: 30px;
-    text-align: center;
+/* ボタンの共通スタイル */
+#controls button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  outline: none;
 }
 
-/* 決定ボタンのスタイル = */
-#addRoutineBtn {
-    width: 200px;
-    height: 50px;
-    background-color: #3182ce; /* スッキリした青色 */
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 24px;
-    transition: background-color 0.2s, transform 0.1s;
+/* リスタートボタン（アクセントカラー：グリーン） */
+#restartBtn {
+  background-color: #4CAF50;
 }
 
-/* ボタンにマウスを乗せたとき */
-#addRoutineBtn:hover {
-    background-color: #2b6cb0; /* 少し濃い青色に */
+#restartBtn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* ボタンをクリックした瞬間 */
-#addRoutineBtn:active {
-    transform: scale(0.98); /* わずかに凹むアニメーション */
+#restartBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 選択画面に戻るボタン（サブカラー：グレー） */
+#backBtn {
+  background-color: #6c757d;
+}
+
+#backBtn:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+#backBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
