@@ -67,9 +67,9 @@ function renderPage() {
                 // 「マス目（2×2）」のような形式で表示
                 div.textContent = `${unitName}（${categoryName}）`;
                 
-                // 【修正点】遷移先を pazzle.html に変更
+                // 【修正点】遷移先を puzzle.html に変更
                 div.addEventListener('click', () => {
-                    const nextPage = 'pazzle.html';
+                    const nextPage = 'puzzle.html';
                     window.location.href = `${nextPage}?revel=${encodeURIComponent(revel)}&grid=${encodeURIComponent(subjectKey)}`;
                 });
 
