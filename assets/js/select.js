@@ -69,7 +69,7 @@ function renderPage() {
                 
                 // 【修正点】遷移先を pazuru.html に変更
                 div.addEventListener('click', () => {
-                    const nextPage = 'pazuru.html';
+                    const nextPage = 'pazzle.html';
                     window.location.href = `${nextPage}?revel=${encodeURIComponent(revel)}&grid=${encodeURIComponent(subjectKey)}`;
                 });
 
