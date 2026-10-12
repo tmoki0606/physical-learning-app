@@ -361,6 +361,7 @@ const backBtn = document.getElementById('backBtn');
 if (backBtn) {
   backBtn.addEventListener('click', () => {
     // 実際の選択画面ファイル名（例: select.html）に合わせて調整してください
-    window.location.href = 'select.html';
+    const revelParam = urlParams.get('revel') || 'revel1'
+    window.location.href = 'pages/select.html?revel=${endoceURIComponent(revelParam)}';
   });
 }
