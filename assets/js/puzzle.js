@@ -362,6 +362,6 @@ if (backBtn) {
   backBtn.addEventListener('click', () => {
     // 実際の選択画面ファイル名（例: select.html）に合わせて調整してください
     const revelParam = urlParams.get('revel') || 'revel1'
-    window.location.href = 'pages/select.html?revel=${endoceURIComponent(revelParam)}';
+    window.location.href = `pages/select.html?revel=${endoceURIComponent(revelParam)}`;
   });
 }
