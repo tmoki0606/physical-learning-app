@@ -69,7 +69,7 @@ function renderPage() {
                 
                 // 【修正点】遷移先を puzzle.html に変更
                 div.addEventListener('click', () => {
-                    const nextPage = 'puzzle.html';
+                    const nextPage = 'pages/puzzle.html';
                     window.location.href = `${nextPage}?revel=${encodeURIComponent(revel)}&grid=${encodeURIComponent(subjectKey)}`;
                 });
 
