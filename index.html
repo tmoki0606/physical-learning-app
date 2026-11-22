@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>くるラボ</title>
+<style>
+  /* 余白をなくして、画面いっぱいにSVGを表示する */
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  svg { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<svg id="screen" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<script>
+/* ============================================================
+   設定(ここの数字・色だけ変えればOK)
+   座標は 1280×800 の仮想キャンバス上の位置。
+   x は右へ、y は下へ増える。中央は (640, 400)。
+   ============================================================ */
+const CONFIG = {
+  canvas: { w: 1280, h: 800 },          // 仮想キャンバスの大きさ(比率を変えたいときだけ)
+
+  colors: {
+    background:  '#5BB6F0',             // 背景色
+    title:       '#FFFFFF',             // タイトル文字
+    arrow:       '#FFD54A',             // 矢印(回転・移動の両方)
+    button:      '#FFD54A',             // ボタンの色
+    buttonText:  '#1E3A6B',             // ボタン文字
+    cubeTop:     '#FFFFFF',             // 立方体の上面
+    cubeLeft:    '#E6E8EB',             // 立方体の左面
+    cubeRight:   '#D3D6DB',             // 立方体の右面
+    cubeStroke:  '#9AA0A8'              // 立方体の輪郭線
+  },
+
+  title: {
+    text: 'くるラボ',
+    x: 640, y: 164,                     // 文字の中心位置
+    size: 150,                          // 文字サイズ
+    weight: 700,                        // 太さ
+    font: "'Hiragino Maru Gothic ProN','Yu Gothic','Meiryo',sans-serif"
+  },
+
+  button: {
+    text: 'スタート',
+    x: 640, y: 662,                     // ボタンの中心位置
+    w: 446, h: 134,                     // 幅と高さ(角丸は高さの半分で自動)
+    textSize: 82                        // 文字サイズ
+  },
+
+  rotate: {                             // 左:立方体を囲む回転の矢印
+    x: 420, y: 394,                     // 立方体の中心位置(矢印の円もここが中心)
+    cubeSize: 60,                       // 立方体の大きさ
+    arcRadius: 112,                     // 回転矢印の円の半径
+    arcStart: -150,                     // 矢印の始まりの角度(度。-90が真上)
+    arcSweep: 290,                      // 矢印が回る角度(度。時計回り)
+    lineWidth: 15,                      // 矢印の線の太さ
+    headSize: 50                        // 矢じりの大きさ
+  },
+
+  move: {                               // 右:立方体が重なる移動の矢印
+    x1: 700, x2: 940, y: 394,           // 線の始点x、終点x、高さy(始点は立方体の下に隠れる位置)
+    cubeX: 720,                         // 立方体の中心x(高さは y と同じ)
+    cubeSize: 60,                       // 立方体の大きさ
+    lineWidth: 15,                      // 矢印の線の太さ
+    headSize: 55                        // 矢じりの大きさ
+  },
+
+  cubeStrokeWidth: 3                    // 立方体の輪郭線の太さ
+};
+
+/* ============================================================
+   以下は描画処理(通常は触らなくてOK)
+   ============================================================ */
+const C = CONFIG;
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('screen');
+
+/* SVG要素を作って属性をつけ、親に追加する小さな道具 */
+function el(name, attrs, parent) {
+  const e = document.createElementNS(NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const rad = deg => deg * Math.PI / 180;               // 度→ラジアン
+const pts = arr => arr.map(p => p.join(',')).join(' '); // 座標配列→points文字列
+
+/* 背景:ページ全体の背景色を設定(画面比率が違っても余白が同じ色になる) */
+document.body.style.background = C.colors.background;
+svg.setAttribute('viewBox', `0 0 ${C.canvas.w} ${C.canvas.h}`);
+svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+/* 立方体:中心(cx,cy)、大きさs。正六角形を3つのひし形(上・左・右)に分けて描く */
+function drawCube(parent, cx, cy, s) {
+  const k = Math.sqrt(3) / 2;
+  const top = [cx, cy - s], ur = [cx + s * k, cy - s / 2], lr = [cx + s * k, cy + s / 2];
+  const bottom = [cx, cy + s], ll = [cx - s * k, cy + s / 2], ul = [cx - s * k, cy - s / 2];
+  const c = [cx, cy];
+  const common = {
+    stroke: C.colors.cubeStroke,
+    'stroke-width': C.cubeStrokeWidth,
+    'stroke-linejoin': 'round'
+  };
+  el('polygon', { points: pts([top, ur, c, ul]),     fill: C.colors.cubeTop,   ...common }, parent);
+  el('polygon', { points: pts([ul, c, bottom, ll]),  fill: C.colors.cubeLeft,  ...common }, parent);
+  el('polygon', { points: pts([c, ur, lr, bottom]),  fill: C.colors.cubeRight, ...common }, parent);
+}
+
+/* タイトル */
+(function drawTitle() {
+  const t = C.title;
+  const e = el('text', {
+    x: t.x, y: t.y,
+    'text-anchor': 'middle', 'dominant-baseline': 'central',
+    fill: C.colors.title,
+    'font-size': t.size, 'font-weight': t.weight, 'font-family': t.font
+  }, svg);
+  e.textContent = t.text;
+})();
+
+/* 左:回転の矢印(円弧+矢じり)と、その中心の立方体 */
+(function drawRotate() {
+  const r = C.rotate, col = C.colors.arrow;
+  const g = el('g', {}, svg);
+  const a0 = rad(r.arcStart), a1 = rad(r.arcStart + r.arcSweep);
+  const sx = r.x + r.arcRadius * Math.cos(a0), sy = r.y + r.arcRadius * Math.sin(a0);
+  const ex = r.x + r.arcRadius * Math.cos(a1), ey = r.y + r.arcRadius * Math.sin(a1);
+  const large = r.arcSweep > 180 ? 1 : 0;
+  /* 円弧(時計回り) */
+  el('path', {
+    d: `M ${sx} ${sy} A ${r.arcRadius} ${r.arcRadius} 0 ${large} 1 ${ex} ${ey}`,
+    fill: 'none', stroke: col, 'stroke-width': r.lineWidth, 'stroke-linecap': 'round'
+  }, g);
+  /* 矢じり:終点での接線方向(進む向き)と法線方向(横幅)から三角形を作る */
+  const tx = -Math.sin(a1), ty = Math.cos(a1);
+  const nx =  Math.cos(a1), ny = Math.sin(a1);
+  const h = r.headSize;
+  const tip = [ex + tx * h * 0.6, ey + ty * h * 0.6];
+  const bc  = [ex - tx * h * 0.4, ey - ty * h * 0.4];
+  el('polygon', {
+    points: pts([tip, [bc[0] + nx * h * 0.6, bc[1] + ny * h * 0.6], [bc[0] - nx * h * 0.6, bc[1] - ny * h * 0.6]]),
+    fill: col
+  }, g);
+  /* 立方体は最後に描いて、矢印より手前に出す */
+  drawCube(g, r.x, r.y, r.cubeSize);
+})();
+
+/* 右:移動の矢印(線+矢じり)と、始点側に重ねた立方体 */
+(function drawMove() {
+  const m = C.move, col = C.colors.arrow;
+  const g = el('g', {}, svg);
+  el('line', {
+    x1: m.x1, y1: m.y, x2: m.x2, y2: m.y,
+    stroke: col, 'stroke-width': m.lineWidth, 'stroke-linecap': 'round'
+  }, g);
+  const h = m.headSize;
+  el('polygon', {
+    points: pts([[m.x2 + h, m.y], [m.x2, m.y - h * 0.6], [m.x2, m.y + h * 0.6]]),
+    fill: col
+  }, g);
+  drawCube(g, m.cubeX, m.y, m.cubeSize);
+})();
+
+/* スタートボタン:角丸の長方形+文字。クリックで onStart() が呼ばれる */
+(function drawButton() {
+  const b = C.button;
+  const g = el('g', { style: 'cursor:pointer' }, svg);
+  el('rect', {
+    x: b.x - b.w / 2, y: b.y - b.h / 2, width: b.w, height: b.h,
+    rx: b.h / 2, fill: C.colors.button
+  }, g);
+  const t = el('text', {
+    x: b.x, y: b.y,
+    'text-anchor': 'middle', 'dominant-baseline': 'central',
+    fill: C.colors.buttonText,
+    'font-size': b.textSize, 'font-weight': 700, 'font-family': C.title.font
+  }, g);
+  t.textContent = b.text;
+  g.addEventListener('click', onStart);
+})();
+
+/* スタートを押したときの処理(画面遷移などはここに書く) */
+function onStart() {
+  console.log('start');
+}
+</script>
+</body>
+</html>
